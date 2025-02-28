@@ -102,4 +102,9 @@ public abstract class ControllerTemplateTest<T> {
 		var errorMessage = getMessage(Messages.INVALID_DATE_RANGE);
 		assertTrue(response.getResponse().getContentAsString().contains(errorMessage));
 	}
+
+	protected void thenExpectedInvalidFieldEmptyError(String field) throws UnsupportedEncodingException {
+		var errorMessage = getMessage(Messages.INVALID_FIELD_EMPTY, field);
+		assertTrue(response.getResponse().getContentAsString().contains(errorMessage));
+	}
 }

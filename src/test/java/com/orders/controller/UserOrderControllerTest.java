@@ -6,22 +6,27 @@ import com.orders.service.UserOrderService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class UserOrderControllerTest extends ControllerTemplateTest<UserOrderController> {
 
     private String orderId;
     private String startOrderDate;
     private String endOrderDate;
+    private MockMultipartFile mockFile;
 
     @MockitoBean
     private UserOrderService userOrderService;
@@ -88,16 +93,48 @@ public class UserOrderControllerTest extends ControllerTemplateTest<UserOrderCon
         thenExpectedInvalidDateRangeError();
     }
 
+    @Test
+    @DisplayName("Try to post new users. Success")
+    void shouldUploadUserOrders() throws Exception {
+        givenAddUserOrders();
+        givenFile();
+        whenCallUploadUserOrdersWithFile();
+        thenExpectNoContentStatus();
+    }
+
+    @Test
+    @DisplayName("Try to post new users with empty file. Return HTTP 400")
+    void shouldNotUploadUserOrdersEmptyFile() throws Exception {
+        givenAddUserOrders();
+        givenEmptyFile();
+        whenCallUploadUserOrdersWithFile();
+        thenExpectBadRequestStatus();
+        thenExpectedInvalidFieldEmptyError("file");
+    }
+
 	@Test
-	@DisplayName("Try to post new users without file. Return HTTP 400")
-	void shouldNotUploadUserOrdersWithEmptyFile() throws Exception {
+	@DisplayName("Try to post new users Missing File. Return HTTP 400")
+	void shouldNotUploadUserOrdersMissingFile() throws Exception {
 		whenCallUploadUserOrders();
 		thenExpectBadRequestStatus();
         thenExpectedRequiredFieldError("file");
 	}
+
     /*
      *	Given methods
      */
+    private void givenFile() {
+        mockFile = new MockMultipartFile("file", "testFile.txt", "text/plain", "Sample file content".getBytes());
+    }
+
+    private void givenEmptyFile() {
+        mockFile = new MockMultipartFile("file", "empty.txt", "text/plain", new byte[0]);
+    }
+
+    private void givenAddUserOrders() throws IOException {
+        doNothing().when(userOrderService).addUserOrders(any());
+    }
+
     private void givenFindByUserIdAndOrderDateReturnUsers() {
         doReturn(List.of(User.builder().userId(1L)
                 .name("John Wayne")
@@ -148,6 +185,12 @@ public class UserOrderControllerTest extends ControllerTemplateTest<UserOrderCon
     private void whenCallUploadUserOrders() throws Exception {
         response = mockMvc.perform(multipart("/users/orders")
                         .param("file", ""))
+                .andReturn();
+    }
+
+    private void whenCallUploadUserOrdersWithFile() throws Exception {
+        response = mockMvc.perform(multipart("/users/orders")
+                        .file(mockFile))
                 .andReturn();
     }
 

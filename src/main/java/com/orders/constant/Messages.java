@@ -9,4 +9,5 @@ public final class Messages {
 	public static final String INVALID_FIELD_VALUE = "400.003";
 	public static final String INVALID_FIELD_SIZE = "400.004";
 	public static final String INVALID_DATE_RANGE = "400.005";
+	public static final String INVALID_FIELD_EMPTY = "400.006";
 }

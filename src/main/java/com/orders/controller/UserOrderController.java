@@ -5,6 +5,8 @@ import com.orders.mapper.UserOrderMapper;
 import com.orders.response.UserOrderResponse;
 import com.orders.service.UserOrderService;
 import com.orders.validation.ConsistentDateParameters;
+import com.orders.validation.NotEmptyMultipartFile;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
@@ -51,9 +53,8 @@ public class UserOrderController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping(path = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> uploadUserOrders(@RequestPart(name = "file") MultipartFile file) throws IOException {
+    @PostMapping(path = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadUserOrders(@Valid @NotEmptyMultipartFile(message = Messages.INVALID_FIELD_EMPTY) @RequestPart(name = "file") MultipartFile file) throws IOException {
             userOrderService.addUserOrders(new BufferedReader(new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8)));
         return ResponseEntity.noContent().build();
     }
