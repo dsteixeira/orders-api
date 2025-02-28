@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: orders-api
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: none
+  datasource:
+    url: jdbc:mysql://localhost:3306/orders-db
+    username: dev
+    password: pwd123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+server:
+  port: 8001
+  servlet:
+    context-path: /orders-api/v1
+
+logging:
+  level:
+    ROOT: INFO
